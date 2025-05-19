@@ -27,11 +27,11 @@ static inline block_header* payload_to_block(void* payload) {
 }
 
 static inline block_header* block_next(block_header* b) {
-	return (block_header*)((char*)b + b->size);
+	return (block_header*)((char*)b + (uint8_t)(b->size & ~(ALIGNMENT - 1)));
 }
 
 static inline block_header* block_prev(block_header* b) {
-	return (block_header*)((char*)b - b->prev_size);
+	return (block_header*)((char*)b - (uint8_t)(b->prev_size & ~(ALIGNMENT - 1)));
 }
 
 static inline size_t get_block_size(block_header* b) {
@@ -39,7 +39,7 @@ static inline size_t get_block_size(block_header* b) {
 }
 
 static inline void set_block_size(block_header* b, size_t size) {
-	b->size = size;
+	b->size = size | (b->size & (ALIGNMENT - 1));
 }
 
 static inline size_t get_prev_block_size(block_header* b) {
@@ -55,5 +55,5 @@ static inline uint8_t get_block_flags(block_header* b) {
 }
 
 static inline void set_block_flags(block_header* b, uint8_t flags) {
-	b->size += flags;
+	b->size = b->size & ~(ALIGNMENT - 1) | flags;
 }
